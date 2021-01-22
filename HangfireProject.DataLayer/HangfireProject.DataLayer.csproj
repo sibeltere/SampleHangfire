@@ -13,8 +13,4 @@
     <ProjectReference Include="..\HangfireProject.EntityLayer\HangfireProject.EntityLayer.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Concrete\" />
-  </ItemGroup>
-
 </Project>

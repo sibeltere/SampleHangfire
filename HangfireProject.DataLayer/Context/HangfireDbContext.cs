@@ -22,6 +22,7 @@ namespace HangfireProject.DataLayer.Context
         }
 
         public DbSet<User> User { get; set; }
+        public DbSet<UserCredentials> UserCredentials { get; set; }
       
     }
 }

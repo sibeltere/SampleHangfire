@@ -7,9 +7,8 @@ using System.Text;
 
 namespace HangfireProject.DataLayer.Abstract
 {
-    public interface IUserDal: IEntityRepositoryBase<User>
+    public interface IUserCredentialsDAL:IEntityRepositoryBase<UserCredentials>
     {
-        List<UserDTO> GetUserList();
-        //UserDTO GetUser(string username, string password);
+        UserCrendentialsDTO GetUserCrendentials(string username, string password);
     }
 }
