@@ -24,6 +24,7 @@ namespace HangfireProject.Controllers
         {
             _userCrendentialsService = userCrendentialsService;
         }
+
         [HttpGet]
         public IActionResult Login()
         {
@@ -31,9 +32,9 @@ namespace HangfireProject.Controllers
             return View(model);
         }
 
-        [Route("/Login")]
+        
         [HttpPost]
-        public  IActionResult Login(LoginModel model)
+        public IActionResult Login(LoginModel model)
         {
             var loginModel = new LoginModel();
 
@@ -55,7 +56,7 @@ namespace HangfireProject.Controllers
                 var identity = new ClaimsIdentity(Claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var user = new ClaimsPrincipal(identity);
 
-                 HttpContext.SignInAsync(user, new AuthenticationProperties
+                HttpContext.SignInAsync(user, new AuthenticationProperties
                 {
                     IsPersistent = false,
                     //ExpiresUtc = DateTime.Now.AddMinutes(300) // overwrite startup
@@ -65,15 +66,14 @@ namespace HangfireProject.Controllers
             }
 
 
-            ViewBag.message = "Authentication Failed";
+            ViewBag.message = "Authentication Failed!";
             return View(loginModel);
         }
 
-      
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Login","Login");
+            return RedirectToAction("Login");
         }
     }
 }

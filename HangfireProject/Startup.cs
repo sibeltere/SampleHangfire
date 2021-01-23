@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Hangfire;
 using Hangfire.SqlServer;
 using HangfireProject.BackgroundJob.Filters;
-using HangfireProject.BackgroundJob.Schedules;
 using HangfireProject.BusinessLayer.Abstract;
 using HangfireProject.BusinessLayer.Concrete;
 using HangfireProject.Configurations;
@@ -10,10 +12,10 @@ using HangfireProject.DataLayer.Abstract;
 using HangfireProject.DataLayer.Concrete;
 using HangfireProject.DataLayer.Context;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,23 +35,19 @@ namespace HangfireProject
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).
-             AddCookie(option =>
-             {
-                 option.LoginPath = new PathString("/Login/Login");
-                 option.ExpireTimeSpan = TimeSpan.FromDays(1);
-             });
-
+            AddCookie(option =>
+            {
+                option.LoginPath = new PathString("/Login/Login");
+                option.ExpireTimeSpan = TimeSpan.FromDays(1);
+            });
 
             services.AddControllersWithViews();
-            services.AddControllers(options => options.EnableEndpointRouting = false);
-
 
             var connectionString = Configuration["ConnectionStrings:ProjectDev"];
             services.AddDbContext<HangfireDbContext>(option => option.UseSqlServer(connectionString));
-
             var hangfireConnectionString = Configuration["ConnectionStrings:HangfireDev"];
+
             services.AddHangfire(config =>
             {
                 var option = new SqlServerStorageOptions
@@ -83,8 +81,14 @@ namespace HangfireProject
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseRouting();
 
@@ -92,18 +96,18 @@ namespace HangfireProject
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Login}/{action=Login}/{id?}");
             });
 
             app.UseAuthentication();
-
-            app.UseMvcWithDefaultRoute();
 
             app.UseHangfireDashboard("/myhangfire", new DashboardOptions
             {
                 DashboardTitle = "Sibel Tere Hangfire DashBoard",  // Dashboard sayfasýna ait Baþlýk alanýný deðiþtiririz.
                 //AppPath = "/Home/HangfireAbout",                     // Dashboard üzerinden "back to site" button
-                Authorization = new[] { new HangfireDashboardAuthorizationFilter()},   // Güvenlik için Authorization Ýþlemleri
+                Authorization = new[] { new HangfireDashboardAuthorizationFilter() },   // Güvenlik için Authorization Ýþlemleri
                 AppPath = "/Login/Logout"
             });
 
@@ -122,7 +126,6 @@ namespace HangfireProject
             // Tanýmlanan zaman diliminde sürekli çalýþtýðý için tetiklenmesine gerek yok, 
             // burada tanýmlayabiliriz. 
             app.UseCustomJobs();
-
         }
     }
 }
