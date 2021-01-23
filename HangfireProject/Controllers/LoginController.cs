@@ -40,7 +40,7 @@ namespace HangfireProject.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.message = "Please Input Username or Password";
+                ViewBag.message = "Please input username or password!";
                 return View(loginModel);
             }
             var dbUser = _userCrendentialsService.GetUserCrendentialsDTO(model.Username, model.Password);
